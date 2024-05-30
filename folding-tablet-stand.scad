@@ -18,7 +18,7 @@ slotDepth = 20;                 // depth of slot
 slotFront = 12;                 // amount of material in front of slot in mm
 
 holeDiameter = 9;               // diameter of holes in base in mm
-holeSpacingFactor = .83;        // adjusts spacing between holes
+holeSpacingFactor = 5/6;        // adjusts spacing between holes
 
 coneHeight = 2;                 // height of cones in hinge
 
@@ -41,6 +41,7 @@ hingeLocations = [ for (i = [0:4]) (height / 5 + hingeGap / 4) * i ];
 module arm(side) {
     // height, length
     difference() {
+        // Main body
         cube([height, length - 2*hingeRadius, thickness]);
 
         // Cut out slot
@@ -51,10 +52,9 @@ module arm(side) {
             rotate([0, 0, reclineAngle])
             cube([slotWidth, slotDepth + 10, 8*thickness], center=true);
 
-        // FIXME: Cut out holes
+        // Cut out holes
         holeLength =  (length - 2*hingeRadius - slotFront - slotWidth - holeDiameter - 2);
-        holeNumber =  holeLength / holeDiameter;
-        holeSpacing = holeSpacingFactor * holeLength / holeNumber;
+        holeSpacing = holeSpacingFactor * holeDiameter;
         for (i = [holeDiameter / 1.5 : holeSpacing : holeLength / 2]) {
             translate([height / 3, i * 2, thickness / 2])
                 cylinder(h=thickness + .1, d=holeDiameter, center=true);
@@ -71,7 +71,7 @@ module arm(side) {
 
 
 module hinge(top, bottom) {
-    // top and bottom are 1 need cone added or -1 if need cone subtracted from hinge
+    // top and bottom: 1 need cone added or -1 if need cone subtracted from hinge
     difference() {
         union() {
             cylinder(h=hingeThickness - hingeGap, r=hingeRadius);
@@ -87,17 +87,17 @@ module hinge(top, bottom) {
             // Add cones
             if (top == 1) {
                 translate([0, 0, -coneHeight])
-                cylinder(h=coneHeight, d1=0, r2=hingeRadius);
+                    cylinder(h=coneHeight, d1=0, r2=hingeRadius);
             }
             if (bottom == 1) {
                 translate([0, 0, hingeThickness - hingeGap])
-                cylinder(h=coneHeight, d2=0, r1=hingeRadius);
+                    cylinder(h=coneHeight, d2=0, r1=hingeRadius);
             }
 
             // Add stops to prevent opening too wide
             if (top != -1) {
                 /*translate([hingeRadius - thickness, 0, 0])*/
-                    rotate([0, 0, -openAngle])
+                rotate([0, 0, -openAngle])
                     translate([0, hingeRadius * sin(90-openAngle), 0])
                     cube([hingeRadius/2, hingeRadius * (1 - sin(90-openAngle)) + hingeGap, hingeThickness - hingeGap]);
             } else {
@@ -130,33 +130,28 @@ module hinge(top, bottom) {
 }
 
 
-/*rotate([openAngle / 2, 0, 0])*/
-
-/*difference() {*/
-
 module paddle(side) {
     union() {
 
-        // right arm
-        translate([0, hingeRadius + hingeGap, 0])
+        translate([0, hingeRadius/1 + hingeGap, hingeRadius - thickness])
             arm(side);
 
         // hinge
         if (side == "right") {
-            translate([hingeLocations[0], 0, -(hingeRadius - thickness)])
+            translate([hingeLocations[0], 0, 0])
                 rotate([0, 90, 0])
                 hinge(0, 1);
-            translate([hingeLocations[2], 0, -(hingeRadius - thickness)])
+            translate([hingeLocations[2], 0, 0])
                 rotate([0, 90, 0])
                 hinge(1, 1);
-            translate([hingeLocations[4], 0, -(hingeRadius - thickness)])
+            translate([hingeLocations[4], 0, 0])
                 rotate([0, 90, 0])
                 hinge(1, 0);
         } else {  // side == "left"
-            translate([hingeLocations[1], 0, hingeRadius])
+            translate([hingeLocations[1], 0, 2*hingeRadius - thickness])
                 rotate([0, 90, 0])
                 hinge(-1, -1);
-            translate([hingeLocations[3], 0, hingeRadius])
+            translate([hingeLocations[3], 0, 2*hingeRadius - thickness])
                 rotate([0, 90, 0])
                 hinge(-1, -1);
         }
@@ -168,10 +163,11 @@ module paddle(side) {
 /*difference() {*/
 /*    union() {*/
 
-        paddle("right");
+/*rotate([openAngle, 0, 0])*/
+paddle("right");
 
-        translate([0, 0, -2*hingeRadius + thickness])
-            paddle("left");
+translate([0, 0, -2*hingeRadius + thickness])
+    paddle("left");
 
 /*    }*/
 /*    translate([height / 2, length/2 - hingeRadius + 19, 0])*/
@@ -179,7 +175,9 @@ module paddle(side) {
 /*}*/
 
 /*// Approximate location of tablet*/
-/*translate([0, length - slotFront - slotWidth * 1.5, -tabletWidth / 2])*/
+/*rotate([openAngle/2, 0, 0])*/
+/*translate([0, slotWidth, 0])*/
+/*translate([0, (length - hingeRadius - slotFront - slotWidth) * cos(openAngle/2) - slotWidth - slotFront/2, -tabletWidth / 2])*/
 /*rotate([0, 0, reclineAngle])*/
-/*    translate([-tabletHeight + slotDepth + 1, 0, 0])*/
-/*        cube([tabletHeight, slotWidth, tabletWidth]);*/
+/*translate([-tabletHeight + slotDepth + 2, 0, 0])*/
+/*    cube([tabletHeight, slotWidth - 5, tabletWidth]);*/
