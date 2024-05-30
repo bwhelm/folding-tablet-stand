@@ -7,7 +7,6 @@ $fn= $preview ? 32 : 128;        // render more accurately than preview
 height = 29;                    // total height of model in mm
 thickness = 5;                  // thickness of each paddle in mm
 
-hingeRadius = 11/2;             // radius of hinge in mm
 hingeGap = .2;                  // gap between hinges
 hingeConeHeight = 2;            // height of cone inside hinge
 
@@ -31,7 +30,8 @@ tabletWidth = 178;
 // =============================
 
 length = tabletHeight * sin(reclineAngle) + slotFront + slotWidth + 9;
-hingeThickness = height / 5;  // thickness of each hinge segment
+hingeRadius = thickness + .5;        // radius of hinge in mm
+hingeThickness = height / 5;         // thickness of each hinge segment
 hingeLocations = [ for (i = [0:4]) (height / 5 + hingeGap / 4) * i ];
 
 // =============================
@@ -97,15 +97,15 @@ module hinge(top, bottom) {
             // Add stops to prevent opening too wide
             if (top != -1) {
                 /*translate([hingeRadius - thickness, 0, 0])*/
-                    rotate([0, 0, -openAngle / 2])
+                    rotate([0, 0, -openAngle])
                     translate([0, hingeRadius * sin(90-openAngle), 0])
-                    cube([hingeRadius, hingeRadius * (1 - sin(90-openAngle)) + hingeGap, hingeThickness - hingeGap]);
+                    cube([hingeRadius/2, hingeRadius * (1 - sin(90-openAngle)) + hingeGap, hingeThickness - hingeGap]);
             } else {
                 /*translate([-(hingeRadius - thickness), 0, hingeThickness - hingeGap])*/
                 translate([0, 0, hingeThickness - hingeGap])
-                    rotate([0, 180, openAngle / 2])
+                    rotate([0, 180, openAngle])
                     translate([0, hingeRadius * sin(90-openAngle), 0])
-                    cube([hingeRadius, hingeRadius * (1 - sin(90-openAngle)) + hingeGap, hingeThickness - hingeGap]);
+                    cube([hingeRadius/2, hingeRadius * (1 - sin(90-openAngle)) + hingeGap, hingeThickness - hingeGap]);
             }
 
         }  // union
@@ -167,7 +167,6 @@ module paddle(side) {
 
 /*difference() {*/
 /*    union() {*/
-/*        //rotate([-openAngle / 2, 0, 0])*/
 
         paddle("right");
 
@@ -179,6 +178,7 @@ module paddle(side) {
 /*        cube([height + 1, length + 1, 2*hingeRadius + 2], center = true);*/
 /*}*/
 
+/*// Approximate location of tablet*/
 /*translate([0, length - slotFront - slotWidth * 1.5, -tabletWidth / 2])*/
 /*rotate([0, 0, reclineAngle])*/
 /*    translate([-tabletHeight + slotDepth + 1, 0, 0])*/
