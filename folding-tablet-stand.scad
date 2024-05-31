@@ -13,7 +13,7 @@ hingeConeHeight = 2;            // height of cone inside hinge
 openAngle = 60;                 // angle between sides when open
 reclineAngle = 18;              // angle of recline of tablet
 
-slotWidth = 15;                 // width of slot for tablet to fit in, in mm
+slotWidth = 13;                 // width of slot for tablet to fit in, in mm
 slotDepth = 20;                 // depth of slot
 slotFront = 12;                 // amount of material in front of slot in mm
 
@@ -29,7 +29,7 @@ tabletWidth = 178;
 // ===== CALCULATED VALUES =====
 // =============================
 
-length = tabletHeight * sin(reclineAngle) + slotFront + slotWidth + 9;
+length = (tabletHeight + height - slotDepth) * sin(reclineAngle) + slotFront + slotWidth + 9;
 hingeRadius = thickness + .5;        // radius of hinge in mm
 hingeThickness = height / 5;         // thickness of each hinge segment
 hingeLocations = [ for (i = [0:4]) (height / 5 + hingeGap / 4) * i ];
@@ -47,9 +47,7 @@ module arm(side) {
         // Cut out slot
         angle = (side == "right") ? openAngle/2 : -openAngle/2;
         translate([slotDepth/2 - 5, length - hingeRadius - slotFront - slotWidth, thickness/2])
-            rotate([0, 0, 90])
-            rotate([0, angle, 0])
-            rotate([0, 0, reclineAngle])
+            rotate([0, angle, 90 + reclineAngle])
             cube([slotWidth, slotDepth + 10, 8*thickness], center=true);
 
         // Cut out holes
@@ -65,6 +63,12 @@ module arm(side) {
         // slice off front
         translate([-1, length - 2*hingeRadius - slotFront - slotDepth / 2 * cos(reclineAngle) - .1, -1])
             cube([slotDepth / 2 - 1, slotFront * 2, thickness + 2]);
+
+        // indentations for rubber feet
+        translate([height, 8, thickness/2])
+            cube([2, 10, thickness - 2], center=true);
+        translate([height, length - 2*hingeRadius - 8, thickness/2])
+            cube([2, 10, thickness - 2], center=true);
 
     } // difference
 }
@@ -120,11 +124,11 @@ module hinge(top, bottom) {
                 cylinder(h=coneHeight, d1=0, r2=hingeRadius);
         }
 
-        // Trim off stops
-        translate([hingeRadius, -hingeRadius, -hingeGap / 2])
-            cube([thickness, 2*hingeRadius, hingeThickness]);
-        translate([-hingeRadius - thickness, -hingeRadius, -hingeGap / 2])
-            cube([thickness, 2*hingeRadius, hingeThickness]);
+        /*// Trim off stops*/
+        /*translate([hingeRadius, -hingeRadius, -hingeGap / 2])*/
+        /*    cube([thickness, 2*hingeRadius, hingeThickness]);*/
+        /*translate([-hingeRadius - thickness, -hingeRadius, -hingeGap / 2])*/
+        /*    cube([thickness, 2*hingeRadius, hingeThickness]);*/
 
     }  // difference
 }
@@ -160,24 +164,25 @@ module paddle(side) {
 
 }
 
-/*difference() {*/
-/*    union() {*/
+module tablet() {
+    // Approximate location of tablet
+    rotate([openAngle/2, 0, 0])
+        translate([0, slotWidth, 0])
+        translate([0, (length - hingeRadius - slotFront - slotWidth) * cos(openAngle/2) - slotWidth - slotFront/3, -tabletWidth / 2])
+        rotate([0, 0, reclineAngle])
+        translate([-tabletHeight + slotDepth + 1, 0, 0])
+            cube([tabletHeight, slotWidth - 5, tabletWidth]);
+}
 
-/*rotate([openAngle, 0, 0])*/
+rotate([0, 90, 0]) translate([-height, 0, 0])  // Rotate and move to correct position on build plate
+{
+
 paddle("right");
 
+/*rotate([-openAngle, 0, 0])*/
 translate([0, 0, -2*hingeRadius + thickness])
     paddle("left");
 
-/*    }*/
-/*    translate([height / 2, length/2 - hingeRadius + 19, 0])*/
-/*        cube([height + 1, length + 1, 2*hingeRadius + 2], center = true);*/
-/*}*/
+/*tablet();*/
 
-/*// Approximate location of tablet*/
-/*rotate([openAngle/2, 0, 0])*/
-/*translate([0, slotWidth, 0])*/
-/*translate([0, (length - hingeRadius - slotFront - slotWidth) * cos(openAngle/2) - slotWidth - slotFront/2, -tabletWidth / 2])*/
-/*rotate([0, 0, reclineAngle])*/
-/*translate([-tabletHeight + slotDepth + 2, 0, 0])*/
-/*    cube([tabletHeight, slotWidth - 5, tabletWidth]);*/
+}
