@@ -7,13 +7,14 @@ $fn= $preview ? 32 : 128;        // render more accurately than preview
 height = 29;                    // total height of model in mm
 thickness = 5;                  // thickness of each paddle in mm
 
+padThickness = 1;               // thickness of rubber pads for bottom and for slot
+
 hingeGap = .2;                  // gap between hinges
 hingeConeHeight = 2;            // height of cone inside hinge
 
 openAngle = 60;                 // angle between sides when open
 reclineAngle = 18;              // angle of recline of tablet
 
-slotWidth = 13;                 // width of slot for tablet to fit in, in mm
 slotDepth = 20;                 // depth of slot
 slotFront = 12;                 // amount of material in front of slot in mm
 
@@ -24,11 +25,13 @@ coneHeight = 2;                 // height of cones in hinge
 
 tabletHeight = 248;             // height of tablet; used to calculate needed length
 tabletWidth = 178;
+tabletThickness = 10;           // thickness of tablet (including case)
 
 // =============================
 // ===== CALCULATED VALUES =====
 // =============================
 
+slotWidth = tabletThickness + padThickness * 2 + .5;  // width of slot for tablet to fit in
 length = (tabletHeight + height - slotDepth) * sin(reclineAngle) + slotFront + slotWidth + 9;
 hingeRadius = thickness + .5;        // radius of hinge in mm
 hingeThickness = height / 5;         // thickness of each hinge segment
@@ -56,11 +59,11 @@ module arm(side) {
                 translate([-slotWidth / 2,
                            -slotDepth/2 + 9,
                            y])
-                    cube([1, 15, x - 1], center=true);
+                    cube([padThickness, 15, x - 1], center=true);
                 translate([slotWidth / 2,
                            -slotDepth/2 - 1,
                            -y])
-                    cube([1, 7.5, x - 1], center=true);
+                    cube([padThickness, 7.5, x - 1], center=true);
             }
 
         // Cut out holes
@@ -79,11 +82,11 @@ module arm(side) {
 
         // indentations for rubber feet
         translate([height, 10, thickness/2])
-            cube([2, 10, thickness - 1], center=true);
+            cube([2*padThickness - .5, 10, thickness - 1], center=true);
         translate([height, length/2 - hingeRadius, thickness/2])
-            cube([2, 10, thickness - 1], center=true);
+            cube([2*padThickness - .5, 10, thickness - 1], center=true);
         translate([height, length - 2*hingeRadius - 10, thickness/2])
-            cube([2, 10, thickness - 1], center=true);
+            cube([2*padThickness - .5, 10, thickness - 1], center=true);
 
     } // difference
 }
@@ -115,12 +118,12 @@ module hinge(top, bottom) {
 
             // Add stops to prevent opening too wide
             if (top != -1) {
-                /*translate([hingeRadius - thickness, 0, 0])*/
+                // translate([hingeRadius - thickness, 0, 0])
                 rotate([0, 0, -openAngle])
                     translate([0, hingeRadius * sin(90-openAngle), 0])
                     cube([hingeRadius/2, hingeRadius * (1 - sin(90-openAngle)) + hingeGap, hingeThickness - hingeGap]);
             } else {
-                /*translate([-(hingeRadius - thickness), 0, hingeThickness - hingeGap])*/
+                // translate([-(hingeRadius - thickness), 0, hingeThickness - hingeGap])
                 translate([0, 0, hingeThickness - hingeGap])
                     rotate([0, 180, openAngle])
                     translate([0, hingeRadius * sin(90-openAngle), 0])
@@ -139,11 +142,11 @@ module hinge(top, bottom) {
                 cylinder(h=coneHeight, d1=0, r2=hingeRadius);
         }
 
-        /*// Trim off stops*/
-        /*translate([hingeRadius, -hingeRadius, -hingeGap / 2])*/
-        /*    cube([thickness, 2*hingeRadius, hingeThickness]);*/
-        /*translate([-hingeRadius - thickness, -hingeRadius, -hingeGap / 2])*/
-        /*    cube([thickness, 2*hingeRadius, hingeThickness]);*/
+        // // Trim off stops
+        // translate([hingeRadius, -hingeRadius, -hingeGap / 2])
+        //     cube([thickness, 2*hingeRadius, hingeThickness]);
+        // translate([-hingeRadius - thickness, -hingeRadius, -hingeGap / 2])
+        //     cube([thickness, 2*hingeRadius, hingeThickness]);
 
     }  // difference
 }
@@ -187,7 +190,7 @@ module tablet() {
                    -tabletWidth / 2])
         rotate([0, 0, reclineAngle])
         translate([-tabletHeight + slotDepth + 1, 0, 0])
-        cube([tabletHeight, slotWidth - 5, tabletWidth]);
+        cube([tabletHeight, tabletThickness, tabletWidth]);
 }
 
 rotate([0, 90, 0]) translate([-height, 0, 0])  // Rotate and move to correct position on build plate
@@ -195,10 +198,10 @@ rotate([0, 90, 0]) translate([-height, 0, 0])  // Rotate and move to correct pos
 
     paddle("right");
 
-    /*rotate([-openAngle, 0, 0])*/
+    // rotate([-openAngle, 0, 0])
     translate([0, 0, -2*hingeRadius + thickness])
         paddle("left");
 
-    /*tablet();*/
+    // tablet();
 
 }
