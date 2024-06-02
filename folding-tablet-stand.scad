@@ -46,9 +46,22 @@ module arm(side) {
 
         // Cut out slot
         angle = (side == "right") ? openAngle/2 : -openAngle/2;
+        x = thickness / cos(angle);
+        y = -slotWidth / 2 * tan(angle);
+        echo(slotWidth * tan(angle));
         translate([slotDepth/2 - 5, length - hingeRadius - slotFront - slotWidth, thickness/2])
-            rotate([0, angle, 90 + reclineAngle])
-            cube([slotWidth, slotDepth + 10, 8*thickness], center=true);
+            rotate([0, angle, 90 + reclineAngle]) {
+                cube([slotWidth, slotDepth + 10, x + slotWidth * abs(tan(angle)) + .1], center=true);
+                // indentations for rubber pads
+                translate([-slotWidth / 2,
+                           -slotDepth/2 + 9,
+                           y])
+                    cube([1, 15, x - 1], center=true);
+                translate([slotWidth / 2,
+                           -slotDepth/2 - 1,
+                           -y])
+                    cube([1, 7.5, x - 1], center=true);
+            }
 
         // Cut out holes
         holeLength =  (length - 2*hingeRadius - slotFront - slotWidth - holeDiameter - 2);
@@ -65,10 +78,12 @@ module arm(side) {
             cube([slotDepth / 2 - 1, slotFront * 2, thickness + 2]);
 
         // indentations for rubber feet
-        translate([height, 8, thickness/2])
-            cube([2, 10, thickness - 2], center=true);
-        translate([height, length - 2*hingeRadius - 8, thickness/2])
-            cube([2, 10, thickness - 2], center=true);
+        translate([height, 10, thickness/2])
+            cube([2, 10, thickness - 1], center=true);
+        translate([height, length/2 - hingeRadius, thickness/2])
+            cube([2, 10, thickness - 1], center=true);
+        translate([height, length - 2*hingeRadius - 10, thickness/2])
+            cube([2, 10, thickness - 1], center=true);
 
     } // difference
 }
@@ -137,7 +152,7 @@ module hinge(top, bottom) {
 module paddle(side) {
     union() {
 
-        translate([0, hingeRadius/1 + hingeGap, hingeRadius - thickness])
+        translate([0, hingeRadius + hingeGap, hingeRadius - thickness])
             arm(side);
 
         // hinge
@@ -166,23 +181,24 @@ module paddle(side) {
 
 module tablet() {
     // Approximate location of tablet
-    rotate([openAngle/2, 0, 0])
-        translate([0, slotWidth, 0])
-        translate([0, (length - hingeRadius - slotFront - slotWidth) * cos(openAngle/2) - slotWidth - slotFront/3, -tabletWidth / 2])
+    rotate([-openAngle/2, 0, 0])
+        translate([0,
+                   (length - hingeRadius - slotWidth - slotFront) * cos(openAngle/2) - slotFront/3,
+                   -tabletWidth / 2])
         rotate([0, 0, reclineAngle])
         translate([-tabletHeight + slotDepth + 1, 0, 0])
-            cube([tabletHeight, slotWidth - 5, tabletWidth]);
+        cube([tabletHeight, slotWidth - 5, tabletWidth]);
 }
 
 rotate([0, 90, 0]) translate([-height, 0, 0])  // Rotate and move to correct position on build plate
 {
 
-paddle("right");
+    paddle("right");
 
-/*rotate([-openAngle, 0, 0])*/
-translate([0, 0, -2*hingeRadius + thickness])
-    paddle("left");
+    /*rotate([-openAngle, 0, 0])*/
+    translate([0, 0, -2*hingeRadius + thickness])
+        paddle("left");
 
-/*tablet();*/
+    /*tablet();*/
 
 }
