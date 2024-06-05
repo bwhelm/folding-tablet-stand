@@ -32,7 +32,7 @@ tabletThickness = 10;           // thickness of tablet (including case)
 // =============================
 
 slotWidth = tabletThickness + padThickness * 2 + .5;  // width of slot for tablet to fit in
-length = (tabletHeight + height - slotDepth) * sin(reclineAngle) + slotFront + slotWidth + 9;
+length = (tabletHeight + height - slotDepth) * sin(reclineAngle + 3) + slotFront + slotWidth;  // length of arm; adding +3 to reclineAngle to provide for slack
 hingeRadius = thickness + .5;        // radius of hinge in mm
 hingeThickness = height / 5;         // thickness of each hinge segment
 hingeLocations = [ for (i = [0:4]) (height / 5 + hingeGap / 4) * i ];
@@ -81,9 +81,7 @@ module arm(side) {
             cube([slotDepth / 2 - 1, slotFront * 2, thickness + 2]);
 
         // indentations for rubber feet
-        translate([height, 10, thickness/2])
-            cube([2*padThickness - .5, 10, thickness - 1], center=true);
-        translate([height, length/2 - hingeRadius, thickness/2])
+        translate([height, length/2 - hingeRadius - 7, thickness/2])
             cube([2*padThickness - .5, 10, thickness - 1], center=true);
         translate([height, length - 2*hingeRadius - 10, thickness/2])
             cube([2*padThickness - .5, 10, thickness - 1], center=true);
@@ -142,12 +140,6 @@ module hinge(top, bottom) {
                 cylinder(h=coneHeight, d1=0, r2=hingeRadius);
         }
 
-        // // Trim off stops
-        // translate([hingeRadius, -hingeRadius, -hingeGap / 2])
-        //     cube([thickness, 2*hingeRadius, hingeThickness]);
-        // translate([-hingeRadius - thickness, -hingeRadius, -hingeGap / 2])
-        //     cube([thickness, 2*hingeRadius, hingeThickness]);
-
     }  // difference
 }
 
@@ -196,7 +188,16 @@ module tablet() {
 rotate([0, 90, 0]) translate([-height, 0, 0])  // Rotate and move to correct position on build plate
 {
 
-    paddle("right");
+    difference() {
+        paddle("right");
+
+        // indentation for rubber foot
+        rotate([0, 90, 0])
+            translate([0, 0, height])
+            rotate([0, 0, openAngle/4])
+                cube([1.25*hingeRadius, 1.25*hingeRadius, 1], center=true);
+
+    }
 
     // rotate([-openAngle, 0, 0])
     translate([0, 0, -2*hingeRadius + thickness])
