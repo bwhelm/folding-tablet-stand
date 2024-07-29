@@ -14,6 +14,7 @@ hingeConeHeight = 2;            // height of cone inside hinge
 
 openAngle = 60;                 // angle between sides when open
 reclineAngle = 18;              // angle of recline of tablet
+reclineAngle2 = 30;             // low angle of recline of tablet (for front end)
 
 coneHeight = 2;                 // height of cones in hinge
 
@@ -77,8 +78,12 @@ module arm(side) {
         }
 
         // slice off front
-        translate([-1, length - 2*hingeRadius - slotFront - slotDepth / 2 * cos(reclineAngle) - .1, -1])
+        translate([-2, length - 2*hingeRadius - slotFront - slotDepth / 2 * cos(reclineAngle) - .1, -1])
             cube([slotDepth / 2 - 1, slotFront * 2, thickness + 2]);
+        // slice off low angle of recline
+        translate([5, length - hingeRadius, (side == "right") ? 0 : 5])
+        rotate([0, -angle/2, -90 + reclineAngle2])
+            cube([slotDepth, slotFront * 4, 3*thickness], center=true);
 
         // indentations for rubber feet
         translate([height, length/2 - hingeRadius - 7, thickness/2])
