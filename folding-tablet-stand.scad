@@ -7,16 +7,13 @@ $fn= $preview ? 32 : 128;        // render more accurately than preview
 height = 29;                    // total height of model in mm
 thickness = 5;                  // thickness of each paddle in mm
 
-padThickness = 1;               // thickness of rubber pads for bottom and for slot
+padThickness = 1.75;               // thickness of rubber pads for bottom and for slot
 
 hingeGap = .1;                  // gap between hinges
 hingeConeHeight = 2;            // height of cone inside hinge
 
 openAngle = 60;                 // angle between sides when open
-reclineAngle = 18;              // angle of recline of tablet
-reclineAngle2 = 30;             // low angle of recline of tablet (for front end)
-
-coneHeight = 2;                 // height of cones in hinge
+reclineAngle = 20;              // angle of recline of tablet
 
 slotDepth = 20;                 // depth of slot
 slotFront = 12;                 // amount of material in front of slot in mm
@@ -32,12 +29,14 @@ tabletThickness = 10;           // thickness of tablet (including case)
 // ===== CALCULATED VALUES =====
 // =============================
 
-slotWidth = tabletThickness + padThickness * 2 + .5;  // width of slot for tablet to fit in
+slotWidth = tabletThickness + padThickness + .5;  // width of slot for tablet to fit in
 length = (tabletHeight + height - slotDepth) * sin(reclineAngle + 3) + slotFront + slotWidth;  // length of arm; adding +3 to reclineAngle to provide for slack
 hingeRadius = thickness + .5;        // radius of hinge in mm
 hingeThickness = (height - hingeGap * 4) / 5;         // thickness of each hinge segment
+coneHeight = hingeThickness / 2;                     // height of cones in hinge
 hingeLocations = [ for (i = [0:4]) (hingeThickness + hingeGap) * i ];
 pivotHeight = (hingeThickness - hingeGap) / 2 - .5;  // height of pivot pin in hinge
+reclineAngle2 = asin((length + hingeRadius) / (.85 * tabletHeight));  // low angle of recline
 
 // =============================
 // ========= THE MODEL =========
@@ -60,11 +59,11 @@ module arm(side) {
                 translate([-slotWidth / 2,
                            -slotDepth/2 + 11.5,
                            y])
-                    cube([padThickness, 10, x - 1], center=true);
+                    cube([padThickness, 10, x - 1.5], center=true);
                 translate([slotWidth / 2,
                            -slotDepth/2 - 1,
                            -y])
-                    cube([padThickness, 7.5, x - 1], center=true);
+                    cube([padThickness, 7.5, x - 1.5], center=true);
             }
 
         // Cut out holes
@@ -86,10 +85,10 @@ module arm(side) {
             cube([slotDepth, slotFront * 4, 3*thickness], center=true);
 
         // indentations for rubber feet
-        translate([height, length/2 - hingeRadius - 7, thickness/2])
-            cube([2*padThickness - .5, 10, thickness - 1], center=true);
-        translate([height, length - 2*hingeRadius - 10, thickness/2])
-            cube([2*padThickness - .5, 10, thickness - 1], center=true);
+        translate([height, length/2 - hingeRadius - 5, thickness/2])
+            cube([2*padThickness - .5, 10, thickness - 1.25], center=true);
+        translate([height, length - 2*hingeRadius - 7, thickness/2])
+            cube([2*padThickness - .5, 10, thickness - 1.25], center=true);
 
     } // difference
 }
@@ -200,7 +199,7 @@ rotate([0, 90, 0]) translate([-height, 0, 0])  // Rotate and move to correct pos
         rotate([0, 90, 0])
             translate([0, 0, height])
             rotate([0, 0, openAngle/4])
-                cube([1.25*hingeRadius, 1.25*hingeRadius, 1], center=true);
+                cube([1.25*hingeRadius, 1.25*hingeRadius, padThickness], center=true);
 
     }
 
