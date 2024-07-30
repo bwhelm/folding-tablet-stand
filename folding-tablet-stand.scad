@@ -9,7 +9,7 @@ thickness = 5;                  // thickness of each paddle in mm
 
 padThickness = 1.75;               // thickness of rubber pads for bottom and for slot
 
-hingeGap = .1;                  // gap between hinges
+hingeGap = .2;                  // gap between hinges
 hingeConeHeight = 2;            // height of cone inside hinge
 
 openAngle = 60;                 // angle between sides when open
@@ -83,12 +83,21 @@ module arm(side) {
         translate([5, length - hingeRadius, (side == "right") ? 0 : 5])
         rotate([0, -angle/2, -90 + reclineAngle2])
             cube([slotDepth, slotFront * 4, 3*thickness], center=true);
+        // Pads
+        translate([0, length - hingeRadius, thickness/2 * cos(reclineAngle2)])
+            rotate([0, 0, -90 + reclineAngle2])
+            rotate([0, -angle/2, 0])
+            // fixme: need to do trig here!
+            translate([(side == "right") ? 10.95 + padThickness - .5 : 10.69 + padThickness - .5,
+                        3,
+                        (side == "right") ? -2.75 : 3.8])
+                cube([2*padThickness - .8, 6.5, thickness - 1.25], center=true);
 
         // indentations for rubber feet
         translate([height, length/2 - hingeRadius - 5, thickness/2])
-            cube([2*padThickness - .5, 10, thickness - 1.25], center=true);
+            cube([2*padThickness - .9, 10, thickness - 1.25], center=true);
         translate([height, length - 2*hingeRadius - 7, thickness/2])
-            cube([2*padThickness - .5, 10, thickness - 1.25], center=true);
+            cube([2*padThickness - .9, 10, thickness - 1.25], center=true);
 
     } // difference
 }
@@ -199,7 +208,7 @@ rotate([0, 90, 0]) translate([-height, 0, 0])  // Rotate and move to correct pos
         rotate([0, 90, 0])
             translate([0, 0, height])
             rotate([0, 0, openAngle/4])
-                cube([1.25*hingeRadius, 1.25*hingeRadius, padThickness], center=true);
+                cube([1.25*hingeRadius, 1.25*hingeRadius, 2*padThickness - .9], center=true);
 
     }
 
