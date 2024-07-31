@@ -33,7 +33,6 @@ slotWidth = tabletThickness + padThickness + .5;  // width of slot for tablet to
 length = (tabletHeight + height - slotDepth) * sin(reclineAngle + 3) + slotFront + slotWidth;  // length of arm; adding +3 to reclineAngle to provide for slack
 hingeRadius = thickness + .5;        // radius of hinge in mm
 hingeThickness = (height - hingeGap * 4) / 5;         // thickness of each hinge segment
-coneHeight = hingeThickness / 2;                     // height of cones in hinge
 hingeLocations = [ for (i = [0:4]) (hingeThickness + hingeGap) * i ];
 pivotHeight = (hingeThickness - hingeGap) / 2 - .5;  // height of pivot pin in hinge
 reclineAngle2 = asin((length + hingeRadius) / (.85 * tabletHeight));  // low angle of recline
@@ -119,12 +118,12 @@ module hinge(top, bottom) {
 
             // Add cones
             if (top == 1) {
-                translate([0, 0, -coneHeight])
-                    cylinder(h=coneHeight, d1=0, r2=hingeRadius);
+                translate([0, 0, -hingeConeHeight])
+                    cylinder(h=hingeConeHeight, d1=0, r2=hingeRadius);
             }
             if (bottom == 1) {
                 translate([0, 0, hingeThickness])
-                    cylinder(h=coneHeight, d2=0, r1=hingeRadius);
+                    cylinder(h=hingeConeHeight, d2=0, r1=hingeRadius);
             }
 
             // Add stops to prevent opening too wide
@@ -146,11 +145,11 @@ module hinge(top, bottom) {
         // Remove cones
         if (top == -1) {
             translate([0, 0, -.01])
-                cylinder(h=coneHeight, d2=0, r1=hingeRadius);
+                cylinder(h=hingeConeHeight, d2=0, r1=hingeRadius);
         }
         if (bottom == -1) {
-            translate([0, 0, hingeThickness - coneHeight + .01])
-                cylinder(h=coneHeight, d1=0, r2=hingeRadius);
+            translate([0, 0, hingeThickness - hingeConeHeight + .01])
+                cylinder(h=hingeConeHeight, d1=0, r2=hingeRadius);
         }
 
     }  // difference
