@@ -102,7 +102,7 @@ module arm(side) {
 }
 
 
-module hinge(top, bottom) {
+module hinge(top, bottom, side) {
     // top and bottom: 1 need cone added or -1 if need cone subtracted from hinge
     difference() {
         union() {
@@ -152,6 +152,14 @@ module hinge(top, bottom) {
                 cylinder(h=hingeConeHeight, d1=0, r2=hingeRadius);
         }
 
+        // flatten hinge (when open)
+        angle = (side == "right") ? -openAngle/2 : openAngle/2;
+        // translate([height/2, -hingeRadius, 0])
+        translate([0, 0*hingeThickness/2, hingeThickness/2])
+            rotate([0, 0, angle])
+                translate([0, -1.4 * hingeRadius, 0])
+                    cube([hingeRadius * 2, hingeRadius, hingeThickness + 1], center=true);
+
     }  // difference
 }
 
@@ -166,20 +174,20 @@ module paddle(side) {
         if (side == "right") {
             translate([hingeLocations[0], 0, 0])
                 rotate([0, 90, 0])
-                hinge(0, 1);
+                hinge(0, 1, side);
             translate([hingeLocations[2], 0, 0])
                 rotate([0, 90, 0])
-                hinge(1, 1);
+                hinge(1, 1, side);
             translate([hingeLocations[4], 0, 0])
                 rotate([0, 90, 0])
-                hinge(1, 0);
+                hinge(1, 0, side);
         } else {  // side == "left"
             translate([hingeLocations[1], 0, 2*hingeRadius - thickness])
                 rotate([0, 90, 0])
-                hinge(-1, -1);
+                hinge(-1, -1, side);
             translate([hingeLocations[3], 0, 2*hingeRadius - thickness])
                 rotate([0, 90, 0])
-                hinge(-1, -1);
+                hinge(-1, -1, side);
         }
 
     }
