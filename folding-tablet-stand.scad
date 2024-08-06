@@ -7,10 +7,10 @@ $fn= $preview ? 32 : 128;        // render more accurately than preview
 height = 29;                    // total height of model in mm
 thickness = 5;                  // thickness of each paddle in mm
 
-padThickness = 1.75;               // thickness of rubber pads for bottom and for slot
+padThickness = 1.75;            // thickness of rubber pads for bottom and for slot
 
-hingeGap = .2;                  // gap between hinges
-hingeConeHeight = 2;            // height of cone inside hinge
+hingeGap = .4;                  // gap between hinges
+pinFactor = 2.3;                // factor by which to divide hingeRadius to get radius of hinge pin
 
 openAngle = 60;                 // angle between sides when open
 reclineAngle = 20;              // angle of recline of tablet
@@ -34,7 +34,6 @@ length = (tabletHeight + height - slotDepth) * sin(reclineAngle + 3) + slotFront
 hingeRadius = thickness + .5;        // radius of hinge in mm
 hingeThickness = (height - hingeGap * 4) / 5;         // thickness of each hinge segment
 hingeLocations = [ for (i = [0:4]) (hingeThickness + hingeGap) * i ];
-pivotHeight = (hingeThickness - hingeGap) / 2 - .5;  // height of pivot pin in hinge
 reclineAngle2 = asin((length + hingeRadius) / (.85 * tabletHeight));  // low angle of recline
 
 // =============================
@@ -116,16 +115,6 @@ module hinge(top, bottom, side) {
                     cube([thickness, hingeRadius + hingeGap + .1, hingeThickness]);
             }
 
-            // Add cones
-            if (top == 1) {
-                translate([0, 0, -hingeConeHeight])
-                    cylinder(h=hingeConeHeight, d1=0, r2=hingeRadius);
-            }
-            if (bottom == 1) {
-                translate([0, 0, hingeThickness])
-                    cylinder(h=hingeConeHeight, d2=0, r1=hingeRadius);
-            }
-
             // Add stops to prevent opening too wide
             if (top != -1) {
                 // translate([hingeRadius - thickness, 0, 0])
@@ -142,14 +131,14 @@ module hinge(top, bottom, side) {
 
         }  // union
 
-        // Remove cones
+        // Remove area for hinge
         if (top == -1) {
             translate([0, 0, -.01])
-                cylinder(h=hingeConeHeight, d2=0, r1=hingeRadius);
+                cylinder(h=hingeThickness*2 + .1, r=hingeRadius/pinFactor + hingeGap);
         }
         if (bottom == -1) {
-            translate([0, 0, hingeThickness - hingeConeHeight + .01])
-                cylinder(h=hingeConeHeight, d1=0, r2=hingeRadius);
+            translate([0, 0, hingeThickness/2 + .01])
+                cylinder(h=hingeThickness/2, r=hingeRadius/pinFactor + hingeGap);
         }
 
         // flatten hinge (when open)
@@ -190,6 +179,12 @@ module paddle(side) {
                 hinge(-1, -1, side);
         }
 
+        // Add hinge pin all the way through
+        rotate([0, 90, 0])
+            translate([0, 0, 0])
+            if (side == "right")
+                cylinder(h=height - padThickness, r=hingeRadius/pinFactor);
+
     }
 
 }
@@ -207,22 +202,25 @@ module tablet() {
 
 rotate([0, 90, 0]) translate([-height, 0, 0])  // Rotate and move to correct position on build plate
 {
-
     difference() {
-      paddle("right");
+        union() {
 
-        // indentation for rubber foot
+            paddle("right");
+
+            // rotate([-openAngle, 0, 0])
+            translate([0, 0, -2*hingeRadius + thickness])
+                paddle("left");
+
+            // tablet();
+
+        }
+
+        // indentation for rubber foot on hinge
         rotate([0, 90, 0])
             translate([0, 0, height])
             rotate([0, 0, openAngle/4])
-                cube([1.25*hingeRadius, 1.25*hingeRadius, 2*padThickness - .9], center=true);
+            cube([1.25*hingeRadius, 1.25*hingeRadius, 2*padThickness - .9], center=true);
 
     }
-
-    // rotate([-openAngle, 0, 0])
-    translate([0, 0, -2*hingeRadius + thickness])
-        paddle("left");
-
-    // tablet();
 
 }
