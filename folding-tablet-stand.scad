@@ -146,7 +146,7 @@ module hinge(top, bottom, side) {
         // translate([height/2, -hingeRadius, 0])
         translate([0, 0*hingeThickness/2, hingeThickness/2])
             rotate([0, 0, angle])
-                translate([0, -1.4 * hingeRadius, 0])
+                translate([0, -1.35 * hingeRadius, 0])
                     cube([hingeRadius * 2, hingeRadius, hingeThickness + 1], center=true);
 
     }  // difference
@@ -218,8 +218,8 @@ rotate([0, 90, 0]) translate([-height, 0, 0])  // Rotate and move to correct pos
         // indentation for rubber foot on hinge
         rotate([0, 90, 0])
             translate([0, 0, height])
-            rotate([0, 0, openAngle/4])
-            cube([1.25*hingeRadius, 1.25*hingeRadius, 2*padThickness - .9], center=true);
+            rotate([0, 0, -openAngle/2])
+            cube([1.25*hingeRadius, 1.4*hingeRadius, 2*padThickness - .9], center=true);
 
     }
 
