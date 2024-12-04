@@ -13,7 +13,7 @@ hingeGap = .4;                  // gap between hinges
 pinFactor = 2.3;                // factor by which to divide hingeRadius to get radius of hinge pin
 
 openAngle = 60;                 // angle between sides when open
-reclineAngle = 20;              // angle of recline of tablet
+reclineAngle = 24;              // angle of recline of tablet
 
 slotDepth = 20;                 // depth of slot
 slotFront = 12;                 // amount of material in front of slot in mm
@@ -30,7 +30,7 @@ tabletThickness = 10;           // thickness of tablet (including case)
 // =============================
 
 slotWidth = tabletThickness + padThickness + .5;  // width of slot for tablet to fit in
-length = (tabletHeight + height - slotDepth) * sin(reclineAngle + 3) + slotFront + slotWidth;  // length of arm; adding +3 to reclineAngle to provide for slack
+length = (.85*tabletHeight + height - slotDepth) * sin(reclineAngle + 3) + slotFront + slotWidth;  // length of arm; adding +3 to reclineAngle to provide for slack
 hingeRadius = thickness + .5;        // radius of hinge in mm
 hingeThickness = (height - hingeGap * 4) / 5;         // thickness of each hinge segment
 hingeLocations = [ for (i = [0:4]) (hingeThickness + hingeGap) * i ];
@@ -207,7 +207,7 @@ rotate([0, 90, 0]) translate([-height, 0, 0])  // Rotate and move to correct pos
 
             paddle("right");
 
-            // rotate([-openAngle, 0, 0])
+            // rotate([-openAngle, 0, 0]) // Rotate left paddle into open position
             translate([0, 0, -2*hingeRadius + thickness])
                 paddle("left");
 
